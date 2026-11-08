@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f6f1e7">
+  <title>对路 · 领取专属验证码</title>
+  <style>
+    :root { --cream:#f6f1e7; --ink:#1e1c18; --muted:#7c7365; --line:#ded4c3; --accent:#b85c38; --soft:#f3e2d6; --serif:"Songti SC","SimSun",Georgia,serif; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; background:var(--cream); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    .wrap { width:min(100% - 40px, 980px); margin:0 auto; }
+    .brand-row { display:flex; align-items:center; justify-content:space-between; padding-top:28px; }
+    .brand { display:flex; align-items:center; gap:9px; font-family:var(--serif); font-size:20px; font-weight:700; letter-spacing:.08em; }
+    .brand-mark { width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 4px rgba(184,92,56,.12); }
+    .brand-tag { font-size:9px; letter-spacing:.2em; color:var(--muted); }
+    .main { max-width:520px; margin:0 auto; padding:52px 0 40px; text-align:center; }
+    .kicker { margin:0 0 12px; font-size:9px; letter-spacing:.2em; color:var(--accent); }
+    h1 { margin:0 0 12px; font-family:var(--serif); font-size:clamp(30px,7vw,42px); font-weight:600; line-height:1.2; }
+    h1 em { font-style:normal; color:var(--accent); }
+    .sub { margin:0 0 20px; font-size:12px; line-height:1.8; color:var(--muted); }
+    .card { padding:20px; border:1px solid var(--line); border-radius:20px; background:#fffdf8; text-align:left; box-shadow:0 18px 40px rgba(61,48,34,.08); }
+    label { display:block; margin:12px 0 7px; font-size:9px; letter-spacing:.16em; color:var(--muted); }
+    label:first-child { margin-top:0; }
+    input { width:100%; padding:13px 12px; border:1px solid var(--line); border-radius:12px; background:var(--cream); font-size:16px; outline:none; }
+    input:focus { border-color:var(--accent); }
+    .code-input { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.12em; text-align:center; text-transform:uppercase; }
+    .btn { display:block; width:100%; margin-top:16px; padding:15px 18px; border:0; border-radius:12px; background:var(--accent); color:#fff8ec; font-size:13px; font-weight:600; letter-spacing:.06em; cursor:pointer; text-align:center; text-decoration:none; }
+    .btn:disabled { opacity:.65; cursor:wait; }
+    .error { min-height:16px; margin:8px 0 0; font-size:10px; line-height:1.6; color:#b23a2a; }
+    .help { margin:8px 0 0; font-size:9px; line-height:1.6; color:var(--muted); }
+    .result { display:none; margin-top:16px; padding:18px; border:1px solid var(--line); border-radius:16px; background:var(--cream); text-align:center; }
+    .result.on { display:block; }
+    .result-label { margin:0; font-size:9px; letter-spacing:.16em; color:var(--muted); }
+    .code { margin:10px 0; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:clamp(24px,6vw,34px); letter-spacing:.08em; color:var(--accent); font-weight:700; word-break:break-all; }
+    .copy { display:inline-block; margin:2px 0 10px; padding:8px 14px; border:1px solid var(--line); border-radius:99px; background:transparent; font-size:10px; color:var(--ink); cursor:pointer; }
+    .result .btn { margin-top:8px; }
+    .back { display:inline-block; margin-top:18px; font-size:10px; color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line); padding-bottom:2px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="brand-row">
+      <div class="brand"><span class="brand-mark"></span>对路</div>
+      <span class="brand-tag">AUTO DELIVERY</span>
+    </header>
+    <main class="main">
+      <p class="kicker">专属验证码 · 自助领取</p>
+      <h1>领取你的<br><em>专属验证码</em></h1>
+      <p class="sub">输入订单号和下单手机尾号，系统会直接把验证码发给你。</p>
+      <div class="card">
+        <form id="claimForm" novalidate>
+          <label for="orderNo">订单号</label>
+          <input id="orderNo" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="小红书订单号" required>
+          <label for="secret">下单手机尾号 4 位</label>
+          <input id="secret" type="text" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="例如 8821" required>
+          <button class="btn" type="submit" id="submitBtn">领取验证码</button>
+          <p id="error" class="error" role="alert"></p>
+          <p class="help">验证码一码一人。领取后请直接去登录页使用。</p>
+        </form>
+        <div id="result" class="result">
+          <p class="result-label">你的专属验证码</p>
+          <div id="code" class="code"></div>
+          <button class="copy" id="copyBtn" type="button">复制验证码</button>
+          <a class="btn" id="loginLink" href="./">去输入验证码，开始测评</a>
+          <p class="help">如果提示“已被使用”，说明已经在当前浏览器登录过；如换设备，请联系客服。</p>
+        </div>
+      </div>
+      <a class="back" href="./">已有验证码？直接登录</a>
+    </main>
+  </div>
+  <script src="config.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById('claimForm');
+      var orderNo = document.getElementById('orderNo');
+      var secret = document.getElementById('secret');
+      var btn = document.getElementById('submitBtn');
+      var error = document.getElementById('error');
+      var result = document.getElementById('result');
+      var codeEl = document.getElementById('code');
+      var copyBtn = document.getElementById('copyBtn');
+      var loginLink = document.getElementById('loginLink');
+      var currentCode = '';
+
+      function rpc(name, payload) {
+        var cfg = window.DUILU_SUPABASE;
+        if (!cfg || !cfg.url || !cfg.anonKey || cfg.url.indexOf('YOUR-PROJECT') !== -1) {
+          return Promise.reject(new Error('no-config'));
+        }
+        return fetch(cfg.url.replace(/\/$/, '') + '/rest/v1/rpc/' + name, {
+          method: 'POST',
+          headers: {
+            'apikey': cfg.anonKey,
+            'Authorization': 'Bearer ' + cfg.anonKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload || {})
+        }).then(function (res) {
+          return res.json().then(function (data) { return { status: res.status, data: data }; });
+        });
+      }
+
+      function showError(msg) {
+        error.textContent = msg;
+        btn.disabled = false;
+        btn.textContent = '领取验证码';
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var o = String(orderNo.value || '').trim();
+        var s = String(secret.value || '').trim();
+        if (!o || !s) { showError('请填写订单号和手机尾号。'); return; }
+        btn.disabled = true;
+        btn.textContent = '领取中…';
+        rpc('claim_order', { p_order_no: o, p_secret: s }).then(function (r) {
+          var data = r.data || {};
+          if (data.ok) {
+            currentCode = data.code;
+            codeEl.textContent = currentCode;
+            loginLink.href = './';
+            result.classList.add('on');
+            error.textContent = '';
+            btn.disabled = false;
+            btn.textContent = '领取验证码';
+            form.style.display = 'none';
+            result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+          if (data.error === 'not_found') showError('未找到该订单，请检查订单号。');
+          else if (data.error === 'secret_mismatch') showError('订单信息不匹配，请检查手机尾号。');
+          else if (data.error === 'invalid_order') showError('订单号格式不正确。');
+          else showError(data.message || '领取失败，请稍后再试。');
+        }).catch(function (e) {
+          if (e && e.message === 'no-config') showError('后台还没配置 Supabase，请联系客服。');
+          else showError('网络异常，请稍后再试。');
+        });
+      });
+
+      copyBtn.addEventListener('click', function () {
+        if (!currentCode) return;
+        var done = function () { copyBtn.textContent = '已复制'; setTimeout(function () { copyBtn.textContent = '复制验证码'; }, 1600); };
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(currentCode).then(done).catch(done);
+        } else {
+          var ta = document.createElement('textarea');
+          ta.value = currentCode; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); } catch (e) {}
+          ta.remove(); done();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
